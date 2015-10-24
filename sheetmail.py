@@ -54,6 +54,8 @@ class Mail_sender():
         if self.config['use_fixed_delay']:
             if mail_send:
                 self.next_send = curtime + ceil(self.config['timeframe'] / self.config['allowed_requests'])
+            else:
+                self.next_send = curtime
         else:    
             if self.config['remaining_requests'] > 0:
                 mail_delay = ceil( (self.config['timeframe_end'] - curtime) / self.config['remaining_requests'] )
