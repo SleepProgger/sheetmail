@@ -51,7 +51,7 @@ Example for gmail account:
       {  
        "host": "smtp.gmail.com",   
        "port": 465, 
-       "username": "your_account@gmail.com"  
+       "username": "your_account@gmail.com",  
        "password": "super_secret",  
        "sender_addr": "your_account@gmail.com",  
        "timeframe": 86400,  
@@ -60,7 +60,7 @@ Example for gmail account:
        "update_config": false,  
        "user_ssl": true,  
        "timeframe_end": 1445647266.221,  
-       "remaining_requests": 0,  
+       "remaining_requests": 0  
       }  
      ]  
     }  
