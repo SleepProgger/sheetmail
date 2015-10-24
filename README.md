@@ -12,11 +12,12 @@ The easiest way is to use pip like:
 
 For linux user that should be it.
 Windows user might need to follow this steps (Only tested on Win7, but it should be similair on Win>7):  
-- 1. Click the start menu button and search for cmd
-- 2. Right click it and run as Administrator
-- 3. Paste the above mentioned command. If this works, awesome, otherwise continue with..
-- 4. Find the place where you installed python (in most cases c:\python27 or something like C:\program files\python)
-- 5. Paste the following into the cmd window (replace "c:\python27" with your python path)  
+1. Click the start menu button and search for cmd  
+2. Right click it and run as Administrator  
+3. Paste the above mentioned command. If this works, awesome, otherwise continue with..  
+4. Find the place where you installed python (in most cases *c:\python27* or something like *C:\program files\python*)  
+5. Paste the following into the cmd window (replace "*c:\python27*" with your python path)  
+
 > c:\python27\Scripts\pip.exe install openpyxl
 
 
@@ -116,3 +117,4 @@ Parameter
       --test                Only test all mail accounts and the spreadsheet file
                             and exit.  
       --nosend              Do not send the mails. Used for testing.  
+
