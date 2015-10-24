@@ -23,6 +23,7 @@ Windows user might need to follow this steps (Only tested on Win7, but it should
 ATTENTION 
 -------------
 This script updates the original spreadsheet file, so i strongly suggest doing a backup before running.
+Also it will replace function like *=concat("A", "B")* with the result. I.e the cell would contain "AB".  
 
 Due to a bug in openpyxl which could potentially corrupt your excel files, i strongly advise in always suplying the *--cleancomments* parameter. This will remove all comments from the spreadsheet file.
 
@@ -71,7 +72,7 @@ Example
 Send mails from the file test.xlsx where the recipient is in the first column, the message in the second and the status field in the third column. The subject will be the same "Hello from sheetmail" for every message.
 The used sheet is the first one (set with *--sheetindex *). *--cleancomments* is used to prevent the mentioned bug in the ATTENTION section.
 
-    python sheetmail.py --config config.json -m 0 -b 1 -o 2 --cleancomments --staticsubject "Hello from sheetmail"
+    python sheetmail.py --config config.json -m 0 -b 1 -o 2 --cleancomments --staticsubject "Hello from sheetmail" xour_xlsxfile.xlsx
 
 Parameter
 -------------
