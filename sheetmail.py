@@ -87,7 +87,7 @@ class Mail_sender():
             self.connect_to_server()
         if isinstance(mail_to, (str, unicode)):
             mail_to = [mail_to]
-            
+
         msg = MIMEText(mail_body)
         msg['Subject'] = mail_subject
         msg['From'] = self.sender
@@ -167,7 +167,7 @@ class Excel_Mail_Sender():
         
     def init(self):
         try:
-            print "Open", self.config['excel_file']
+            log_debug("Open", self.config['excel_file'])
             self.wb = load_workbook(self.config['excel_file'], data_only=True, keep_vba=True)
         except CellCoordinatesException, InvalidFileException:
             log_error('Failed to load spreadsheet file "%s"' % self.config['excel_file'])
@@ -230,10 +230,17 @@ class Excel_Mail_Sender():
                 log_debug('Next mail send in %i seconds' % _next)
                 sleep(_next)
             
-            try:
-                status = connection.send_mail(row[1], row[2], row[3], retries=3, sleep_time=5) 
-            except smtplib.SMTPRecipientsRefused as e:
-                log_error('Recipients refused (%s) for connection %s@%s:%i' % (row[1], connection.username, connection.host, connection.port))
+            failed = False
+            if not row[1] or not row[2] or not row[3]:
+                log_error('Invalid data in row %i. Skipping row.' % (row[0] + 1))
+                failed = True
+            else:
+                try:
+                    status = connection.send_mail(row[1], row[2], row[3], retries=3, sleep_time=5) 
+                except smtplib.SMTPRecipientsRefused as e:
+                    log_error('Recipients refused (%s) for connection %s@%s:%i' % (row[1], connection.username, connection.host, connection.port))
+                    failed = True
+            if failed:
                 self.sheet.cell(row=row[0] + 1, column=self.config['colsend'] + 1).value = 2
                 self.wb.save(self.config['excel_file'])
                 continue
@@ -242,6 +249,8 @@ class Excel_Mail_Sender():
                 self.sheet.cell(row=row[0] + 1, column=self.config['colsend'] + 1).value = 1
                 self.wb.save(self.config['excel_file'])
             else:
+                # We do NOT set the error or done flag when there is an critical error
+                # as it is probably some network or configuration error- 
                 log_error('Critical error. Going down.')
                 return False
 
@@ -264,16 +273,17 @@ def test_mail(config):
         except socket.error as e:
             log_error('Network error: %s' % e)
           
-def test_spreadsheet_file(config):
+def test_spreadsheet_file(config, cleancomments):
     from tempfile import mkstemp
+    error = False
     log_info('Trying to load spreadsheet file "%s" ...' % config['excel_file'])
     try:
         book = load_workbook(config['excel_file'], use_iterators=False, keep_vba=True)
     except InvalidFileException:
         log_error('Invalid file. Can\'t open')
-        return False
+        return True
         
-    if config['cleancomments']:
+    if cleancomments:
         log_info('Cleaning comments for temporary file')
         for i in xrange(len(book.get_sheet_names())):
             book.active = i
@@ -285,7 +295,7 @@ def test_spreadsheet_file(config):
     log_info('Loading succesfully. %i rows found.' % book.active.max_row)
     
     # https://bitbucket.org/openpyxl/openpyxl/issues/536/cant-save-and-reopen-xlsx-file-with
-    log_info('Checking for comment bug ...')
+    log_debug('Checking for comment bug ...')
     tmp_file, tmp_name = mkstemp(suffix=suffix)
     os.close(tmp_file)
     book.save(tmp_name)
@@ -295,9 +305,11 @@ def test_spreadsheet_file(config):
         book.active = config['sheetindex']
         log_info('Comment bug not detected. Rows %i' % book.active.max_row)
     except TypeError as e:
-        log_error('Failed reloading file. Try again with --cleancomments')
+        log_error('Failed reloading file. Try again with added --cleancomments parameter.')
+        error = True
     fd.close()
-    os.remove(tmp_name) 
+    os.remove(tmp_name)
+    return error 
 
 
 if __name__ == '__main__':
@@ -313,12 +325,13 @@ if __name__ == '__main__':
     parser.add_argument('--colsend', '-o', type=int, default=3, help='The column used to mark if the mail was send.')
     parser.add_argument('--staticsubject', '-x', help='Can be used to use a static subject.')
     parser.add_argument('--sheetindex', '-i', type=int, default=0, help='The sheet to use.')
-    parser.add_argument('--cleancomments', action='store_true', help='Remove comments from file. Openpyxl has a bug leading to corrupt files otherwise.')
+    parser.add_argument('--cleancomments', action='store_true', help='Remove comments from file. Openpyxl has/hadd a bug leading to corrupt files otherwise.')
     parser.add_argument('excel_file', type=argparse.FileType('r+b'), help='The excel file to get data from.')
-    
-    parser.add_argument('--test', action='store_true', help='Only test all mail accounts and the spreadsheet file and exit.')       
-    parser.add_argument('--nosend', action='store_true', help='Do not send the mails. Used for testing.')       
+    parser.add_argument('--test', action='store_true', help='Only test all mail accounts and the spreadsheet file. Then exit.')       
+    parser.add_argument('--nosend', action='store_true', help='Do NOT send the mails. Used for testing.')       
+    parser.add_argument('--notest', action='store_true', help='Do NOT test for comment bug on startup.')       
     params = vars(parser.parse_args(sys.argv[1:]))
+    
     # Get filename of the excel file (used to check perms)
     file_name = params['excel_file'].name
     params['excel_file'].close()
@@ -340,8 +353,13 @@ if __name__ == '__main__':
     
     if params['test']:
         test_mail(params)
-        test_spreadsheet_file(params)
+        test_spreadsheet_file(params, params['cleancomments'])
         exit()
+        
+    if not params['notest']:
+        log_info('Testing file integrity and comment bug...')
+        if test_spreadsheet_file(params, params['cleancomments']):
+            exit()
     
     sender = Excel_Mail_Sender(params)
     if sender.init():
