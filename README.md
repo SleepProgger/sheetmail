@@ -84,7 +84,7 @@ Parameter
                         [--colsubject COLSUBJECT] [--colbody COLBODY]
                         [--colsend COLSEND] [--staticsubject STATICSUBJECT]
                         [--sheetindex SHEETINDEX] [--cleancomments] [--test]
-                        [--nosend]
+                        [--nosend] [--notest]
                         excel_file
     
     Sends emails with data supplied by excel files.
@@ -93,28 +93,29 @@ Parameter
       excel_file            The excel file to get data from.
     
     optional arguments:
-      -h, --help            show this help message and exit  
-      --config CONFIG, -c CONFIG  
-                            Choose the configuration file.  
-      --loglvl {DEBUG,INFO,WARN,ERROR}, -l {DEBUG,INFO,WARN,ERROR}  
-                            Set the log level.  
-     --logfile LOGFILE, -f LOGFILE  
-                            Also write log to file.  
-      --colmail COLMAIL, -m COLMAIL  
-                            The column containing the email address.  
-      --colsubject COLSUBJECT, -s COLSUBJECT  
-                            The column containing the email subjects.  
-      --colbody COLBODY, -b COLBODY  
-                            The column containing the email message.  
-      --colsend COLSEND, -o COLSEND  
-                            The column used to mark if the mail was send  
-      --staticsubject STATICSUBJECT, -x STATICSUBJECT  
-                            Can be used to use a static subject.  
-      --sheetindex SHEETINDEX, -i SHEETINDEX  
-                            The sheet to use.  
-      --cleancomments       Remove comments from file. Openpyxl has a bug leading  
-                            to corrupt files otherwise.  
-      --test                Only test all mail accounts and the spreadsheet file
-                            and exit.  
-      --nosend              Do not send the mails. Used for testing.  
+      -h, --help            show this help message and exit
+      --config CONFIG, -c CONFIG
+                            Choose the configuration file.
+      --loglvl {DEBUG,INFO,WARN,ERROR}, -l {DEBUG,INFO,WARN,ERROR}
+                            Set the log level.
+      --logfile LOGFILE, -f LOGFILE
+                            Also write log to file.
+      --colmail COLMAIL, -m COLMAIL
+                            The column containing the email address.
+      --colsubject COLSUBJECT, -s COLSUBJECT
+                            The column containing the email subjects.
+      --colbody COLBODY, -b COLBODY
+                            The column containing the email message.
+      --colsend COLSEND, -o COLSEND
+                            The column used to mark if the mail was send.
+      --staticsubject STATICSUBJECT, -x STATICSUBJECT
+                            Can be used to use a static subject.
+      --sheetindex SHEETINDEX, -i SHEETINDEX
+                            The sheet to use.
+      --cleancomments       Remove comments from file. Openpyxl has/hadd a bug
+                            leading to corrupt files otherwise.
+      --test                Only test all mail accounts and the spreadsheet file.
+                            Then exit.
+      --nosend              Do NOT send the mails. Used for testing.
+      --notest              Do NOT test for comment bug on startup.
 
