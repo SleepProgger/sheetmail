@@ -142,9 +142,14 @@ class Mail_sender():
                     log_info('Trying to reconnect to %s@%s:%i ...' % (self.username, self.host, self.port))
                     self.close()
                     sleep(sleep_time)
-                    self.connected = False
+                    self.connected = False  
             except smtplib.SMTPException as e:
                 log_error('Smtplib error: %s .' % e)
+                if i < retries:
+                    log_info('Trying to reconnect to %s@%s:%i ...' % (self.username, self.host, self.port))
+                    self.close()
+                    sleep(sleep_time)
+                    self.connected = False  
                 return False
         log_error('To many retries sending to %s:%i via %s. Giving up.' % (self.host, self.port, self.username))
         return False
