@@ -150,7 +150,6 @@ class Mail_sender():
                     self.close()
                     sleep(sleep_time)
                     self.connected = False  
-                return False
         log_error('To many retries sending to %s:%i via %s. Giving up.' % (self.host, self.port, self.username))
         return False
     
