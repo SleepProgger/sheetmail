@@ -88,7 +88,7 @@ class Mail_sender():
         if isinstance(mail_to, (str, unicode)):
             mail_to = [mail_to]
 
-        msg = MIMEText(mail_body)
+        msg = MIMEText(mail_body, "plain", "utf-8")
         msg['Subject'] = mail_subject
         msg['From'] = self.sender
         msg['To'] = ",".join(mail_to)
@@ -167,7 +167,7 @@ class Excel_Mail_Sender():
         
     def init(self):
         try:
-            log_debug("Open", self.config['excel_file'])
+            log_debug("Open '%s'" % self.config['excel_file'])
             self.wb = load_workbook(self.config['excel_file'], data_only=True, keep_vba=True)
         except CellCoordinatesException, InvalidFileException:
             log_error('Failed to load spreadsheet file "%s"' % self.config['excel_file'])
@@ -216,7 +216,7 @@ class Excel_Mail_Sender():
     
     def run(self):
         row_select = (self.config['colmail'], self.config['colsubject'], self.config['colbody'], self.config['colsend'])
-        for row in excel_data_iterator(self.wb, self.config['sheetindex'], row_select):
+        for row in excel_data_iterator(self.wb, self.config['sheetindex'], row_select, self.config['rowoffset']):
             row = list(row)
             if 'staticsubject' in self.config:
                 row[2] = self.config['staticsubject']
@@ -318,7 +318,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Sends emails with data supplied by excel files.')
     parser.add_argument('--config', '-c', required=True, type=argparse.FileType('r+b'), default='./config.json', help='Choose the configuration file.')
     parser.add_argument('--loglvl', '-l', help='Set the log level.', default='INFO', choices=('DEBUG', 'INFO', 'WARN', 'ERROR'))
-    parser.add_argument('--logfile', '-f', type=argparse.FileType('w'), help='Also write log to file.')
+    parser.add_argument('--logfile', '-f', type=argparse.FileType('w'), help='Also write log to file.')    
+    parser.add_argument('--rowoffset', '-r', type=int, default=1, help='The row to start with.')
     parser.add_argument('--colmail', '-m', type=int, default=0, help='The column containing the email address.')
     parser.add_argument('--colsubject', '-s', type=int, default=1, help='The column containing the email subjects.')
     parser.add_argument('--colbody', '-b', type=int, default=2, help='The column containing the email message.')
